@@ -1,4 +1,5 @@
 const Task = require('../models/task');
+const { getIO } = require('../socket');
 
 exports.getTasks = async (req, res, next) => {
   try {
@@ -12,16 +13,16 @@ exports.getTasks = async (req, res, next) => {
 exports.getTask = async (req, res, next) => {
   try {
     const id = req.params['id'];
-    const task = await Task.findById(id);
-    if (task) {
-      res.status(200).json({ data: task, message: 'Success' });
-    } else {
-      res
-        .status(200)
-        .json({
+    if (id) {
+      const task = await Task.findById(id);
+      if (task) {
+        res.status(200).json({ data: task, message: 'Success' });
+      } else {
+        res.status(200).json({
           data: null,
           message: 'Unable to find the record with provided Id',
         });
+      }
     }
   } catch (e) {
     next(e);
@@ -30,15 +31,18 @@ exports.getTask = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description, status, priority, due_date } = req.body;
+    const { title, description, status, priority, due_date, at_level } = req.body;
     const newTask = await Task.create({
       title,
       description,
       status,
       priority,
       due_date,
+      at_level
     });
     res.status(201).json({ data: newTask, message: 'Created Successfully' });
+    const io = getIO();
+    io.emit('task:created', newTask);
   } catch (e) {
     next(e);
   }
@@ -54,6 +58,8 @@ exports.updateTask = async (req, res, next) => {
       res
         .status(200)
         .json({ data: updatedTask, message: 'Updated Successfully' });
+      const io = getIO();
+      io.emit('task:updated', updatedTask);
     } else {
       res.status(404).json({
         data: null,
@@ -71,6 +77,8 @@ exports.deleteTask = async (req, res, next) => {
     let deletedTask = await Task.findByIdAndDelete(id);
     if (deletedTask) {
       res.status(202).json({ data: null, message: 'Deleted Successfully' });
+      const io = getIO();
+      io.emit('task:deleted', deletedTask);
     } else {
       res.status(404).json({
         data: null,
