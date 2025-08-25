@@ -1,5 +1,6 @@
 const Task = require('../models/task');
 const { getIO } = require('../socket');
+const { producer } = require('../config/k');
 
 exports.getTasks = async (req, res, next) => {
   try {
@@ -43,6 +44,10 @@ exports.createTask = async (req, res, next) => {
     res.status(201).json({ data: newTask, message: 'Created Successfully' });
     const io = getIO();
     io.emit('task:created', newTask);
+    producer.send({
+      topic: 'task:created',
+      message: [{ value: newTask }]
+    })
   } catch (e) {
     next(e);
   }

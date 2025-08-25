@@ -8,6 +8,7 @@ const http = require('http');
 const { createAdapter } = require('@socket.io/redis-adapter');
 const { createClient } = require('redis');
 const { init } = require('./socket');
+const { runKafkaProducer } = require('./config/kafka');
 dotenv.config();
 
 const connectDB = require('./config/db');
@@ -20,6 +21,7 @@ const app = express();
 
 // Connection to Database
 connectDB();
+runKafkaProducer();
 
 const server = http.createServer(app);
 const io = init(server);
