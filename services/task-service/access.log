@@ -1,1 +1,2 @@
-127.0.0.1 - - [25/Aug/2025:11:17:19 +0000] "POST /task HTTP/1.1" 201 343 "-" "PostmanRuntime/7.45.0"
+127.0.0.1 - - [25/Aug/2025:20:02:15 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://localhost:8000/task" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"
+127.0.0.1 - - [25/Aug/2025:20:02:16 +0000] "GET /task HTTP/1.1" 401 26 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36"

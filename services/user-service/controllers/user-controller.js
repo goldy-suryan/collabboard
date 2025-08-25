@@ -1,10 +1,39 @@
 const User = require('../models/user');
+const bcrypt = require('bcryptjs');
+const saltRound = 10;
 
 module.exports = {
   getUsers: async (req, res, next) => {
     try {
       const users = await User.find();
       res.status(200).json({ data: users, message: 'Success' });
+    } catch (e) {
+      next(e);
+    }
+  },
+
+  getUserByEmail: async (req, res, next) => {
+    try {
+      const { email, password } = req.body;
+      const foundUser = await User.findOne({ email });
+      if (foundUser) {
+        const compare = await bcrypt.compare(password, foundUser.password);
+        if (compare) {
+          res.status(200).json({
+            data: foundUser,
+            message: 'Success, Logged in successfully',
+          });
+        } else {
+          res
+            .status(401)
+            .json({ data: null, message: 'Forbidden, Authorization failed' });
+        }
+      } else {
+        res.status(401).json({
+          data: null,
+          message: 'No user found with provided credentials',
+        });
+      }
     } catch (e) {
       next(e);
     }
@@ -28,14 +57,19 @@ module.exports = {
 
   createUser: async (req, res, next) => {
     try {
-      const { name, email } = req.body;
+      const { name, email, password } = req.body;
+      const encryptedPass = await bcrypt.hash(
+        password,
+        await bcrypt.genSalt(saltRound)
+      );
       const newUser = await User.create({
         name,
         email,
+        password: encryptedPass,
       });
       res
         .status(201)
-        .json({ data: newUser, success: 'User created successfully' });
+        .json({ data: newUser, message: 'User created successfully' });
     } catch (e) {
       next(e);
     }
