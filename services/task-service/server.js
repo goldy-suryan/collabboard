@@ -34,5 +34,5 @@ app.use(errorMiddleware.unknownError);
 //Server
 app.listen(port, '0.0.0.0', (err) => {
   if (err) console.error(`Error while starting server: ${err}`);
-  console.log(`Server started on port: ${port}`);
+  console.log(`Task server listening on port: ${port}`);
 });

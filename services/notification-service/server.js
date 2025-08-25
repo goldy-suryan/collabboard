@@ -85,5 +85,5 @@ server.listen(port, '0.0.0.0', (err) => {
     console.log(err, 'Error');
     process.exit(1);
   }
-  console.log(`Listening on port: ${port}`);
+  console.log(`Notification server listening on port: ${port}`);
 });
