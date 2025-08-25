@@ -14,6 +14,8 @@ It follows a **microservices architecture** with the following features:
 
 **Role-Based Access Control (RBAC)**: Restricts update/delete operations based on user roles.
 
+**Authentication Service**: Verifies user's identities before granting them access to systems, data, or resources.
+
 **Kafka for Event Streaming**: Ensures reliable communication between services.
 
 
