@@ -8,12 +8,24 @@
     <h1>Socket.IO Testing Page</h1>
 
     <!-- Loading Socket.IO client directly from server -->
-    <script src="http://localhost:8000/socket.io/socket.io.js"></script>
+    <script src="http://localhost:3001/socket.io/socket.io.js"></script>
     <script>
-      const socket = io('http://localhost:8000');
+      const socket = io('http://localhost:3001');
 
       socket.on('connect', () => {
         console.log('Client connected:', socket.id);
+      });
+
+      socket.on('task_created', (data) => {
+        console.log(data, 'data here in FE');
+      });
+
+      socket.on('task_udated', (data) => {
+        console.log(data, 'updated data here in FE');
+      });
+
+      socket.on('task_deleted', (data) => {
+        console.log(data, 'data deleted here');
       });
 
       socket.on('disconnect', () => {

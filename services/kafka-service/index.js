@@ -13,10 +13,13 @@ const admin = kafka.admin();
     await admin.createTopics({
       topics: [
         {
-          topic: 'task-created',
+          topic: 'task_created',
         },
         {
-          topic: 'task-deleted',
+          topic: 'task_deleted',
+        },
+        {
+          topic: 'task_udpated',
         },
       ],
     });
