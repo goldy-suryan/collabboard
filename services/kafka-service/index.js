@@ -21,6 +21,9 @@ const admin = kafka.admin();
         {
           topic: 'task_udpated',
         },
+        {
+          topic: 'task_assigned',
+        },
       ],
     });
   } catch (e) {

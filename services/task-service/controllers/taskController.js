@@ -31,7 +31,7 @@ exports.getTask = async (req, res, next) => {
 
 exports.createTask = async (req, res, next) => {
   try {
-    const { title, description, status, priority, due_date, at_level } =
+    const { title, description, status, priority, due_date, at_level, userId } =
       req.body;
     const newTask = await Task.create({
       title,
@@ -40,7 +40,14 @@ exports.createTask = async (req, res, next) => {
       priority,
       due_date,
       at_level,
+      userId,
     });
+    if (userId) {
+      await producer.send({
+        topic: 'task_assigned',
+        messages: [{ value: JSON.stringify({ task: newTask, userId }) }],
+      });
+    }
     await producer.send({
       topic: 'task_created',
       messages: [{ value: JSON.stringify(newTask) }],
