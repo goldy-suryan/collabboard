@@ -1,17 +1,25 @@
 const { Kafka } = require('kafkajs');
 
+console.log('Broker is', process.env.BROKER);
+
 const kafka = new Kafka({
   clientId: 'task-service',
-  brokers: ['localhost:9094'],
+  brokers: [process.env.BROKER],
 });
 
 const producer = kafka.producer();
 
 const run = async () => {
-  try {
-    await producer.connect();
-  } catch (e) {
-    console.log(e, 'Error while running producer');
+  while (true) {
+    try {
+      await producer.connect();
+      console.log('producer connected');
+      break;
+    } catch (e) {
+      console.log(e, 'Error while running producer');
+      console.error("Kafka not ready yet, retrying in 5s...");
+      await new Promise(r => setTimeout(r, 5000));
+    }
   }
 };
 

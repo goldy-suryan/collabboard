@@ -17,37 +17,42 @@ const io = init(server);
 
 const kafka = new Kafka({
   clientId: 'notification-service',
-  brokers: ['localhost:9094'],
+  brokers: ['kafka:9092'],
 });
 
 const consumer = kafka.consumer({ groupId: 'task-group' });
 
 (async () => {
-  try {
-    await consumer.connect();
-    await Promise.all([
-      consumer.subscribe({
-        topic: 'task_created',
-        fromBeginning: true,
-      }),
-      consumer.subscribe({
-        topic: 'task_updated',
-        fromBeginning: true,
-      }),
-      consumer.subscribe({
-        topic: 'task_deleted',
-        fromBeginning: true,
-      }),
-    ]);
-
-    await consumer.run({
-      eachMessage: async ({ topic, partition, message }) => {
-        console.log(topic, partition, message.value.toString());
-        io.emit(topic, message.value.toString());
-      },
-    });
-  } catch (e) {
-    console.log(e, 'error in notification service');
+  while (true) {
+    try {
+      await consumer.connect();
+      await Promise.all([
+        consumer.subscribe({
+          topic: 'task_created',
+          fromBeginning: true,
+        }),
+        consumer.subscribe({
+          topic: 'task_updated',
+          fromBeginning: true,
+        }),
+        consumer.subscribe({
+          topic: 'task_deleted',
+          fromBeginning: true,
+        }),
+      ]);
+      console.log('Notification consumer connected')
+      await consumer.run({
+        eachMessage: async ({ topic, partition, message }) => {
+          console.log(topic, partition, message.value.toString());
+          io.emit(topic, message.value.toString());
+        },
+      });
+      break;
+    } catch (e) {
+      console.log(e, 'error in notification service');
+      console.log('not ready retrying in 5 sec...');
+      await new Promise((r) => setTimeout(r, 5000));
+    }
   }
 })();
 

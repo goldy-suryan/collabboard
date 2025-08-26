@@ -9,9 +9,12 @@ module.exports = {
       }
 
       if (token) {
-        let resp = await axios.post('http://localhost:4000/isAuthenticated', {
-          token,
-        });
+        let resp = await axios.post(
+          'http://auth-service:4000/isAuthenticated',
+          {
+            token,
+          }
+        );
         req.decoded = resp.data.data;
         next();
       } else {

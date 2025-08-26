@@ -1,0 +1,130 @@
+services:
+  kafka:
+    image: bitnami/kafka:latest
+    hostname: kafka
+    container_name: kafka-container
+    environment:
+      - KAFKA_KRAFT_MODE=true
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,CONTROLLER://kafka:9093
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - ALLOW_PLAINTEXT_LISTENER=yes
+    ports:
+      - 9092:9092
+      - 9093:9093
+    networks:
+      - kafka_network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka-ui
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local-cluster
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_READONLY=false
+      - KAFKA_CLUSTERS_0_TOPIC_AUTO_CREATE=true
+    ports:
+      - 8080:8080
+    depends_on:
+      - kafka
+    networks:
+      - kafka_network
+
+  mongo:
+    image: mongo
+    restart: always
+    container_name: mongo_container
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=example
+    ports:
+      - 27017:27017
+    networks:
+      - kafka_network
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - 8081:8081
+    environment:
+      - ME_CONFIG_MONGODB_URL=mongodb://root:example@mongo:27017/
+      - ME_CONFIG_BASICAUTH_ENABLED=true
+      - ME_CONFIG_BASICAUTH_USERNAME=root
+      - ME_CONFIG_BASICAUTH_PASSWORD=example
+    depends_on:
+      - mongo
+    networks:
+      - kafka_network
+
+  kafka-service:
+    build: ./services/kafka-service/.
+    container_name: kafka-service
+    depends_on:
+      - kafka
+    networks:
+      - kafka_network
+
+  email-service:
+    build: ./services/email-service/.
+    container_name: email-service
+    depends_on:
+      - kafka
+    volumes:
+      - ./services/email-service/.env:/app/.env
+    networks:
+      - kafka_network
+
+  user-service:
+    build: ./services/user-service/.
+    container_name: user-service
+    ports:
+      - 3002:3002
+    depends_on:
+      - mongo
+    volumes:
+      - ./services/user-service/.env:/app/.env
+    networks:
+      - kafka_network
+
+  auth-service:
+    build: ./services/auth-service/.
+    container_name: auth-service
+    ports:
+      - 4000:4000
+    volumes:
+      - ./services/auth-service/.env:/app/.env
+    networks:
+      - kafka_network
+
+  task-service:
+    build: ./services/task-service/.
+    container_name: task-service
+    ports:
+      - 8000:8000
+    depends_on:
+      - kafka
+      - mongo
+    volumes:
+      - ./services/task-service/.env:/app/.env
+    networks:
+      - kafka_network
+
+  notification-service:
+    build: ./services/notification-service/.
+    container_name: notification-service
+    ports:
+      - 3001:3001
+    depends_on:
+      - kafka
+    networks:
+      - kafka_network
+
+networks:
+  kafka_network:
+    driver: bridge

@@ -6,7 +6,7 @@ router.post('/', async (req, res, next) => {
   try {
     const { email, password } = req.body;
     const foundUser = await axios.post(
-      'http://localhost:3002/user/userByEmail',
+      'http://user-service:3002/user/userByEmail',
       { email, password }
     );
     if (foundUser.status == 200) {

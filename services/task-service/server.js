@@ -1,11 +1,11 @@
 const express = require('express');
 const dotenv = require('dotenv');
+dotenv.config();
 const logger = require('morgan');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
 const { runKafkaProducer } = require('./config/kafka');
-dotenv.config();
 
 const connectDB = require('./config/db');
 const taskRoute = require('./routes/taskRoute');
@@ -17,7 +17,9 @@ const app = express();
 
 // Connection to Database
 connectDB();
-runKafkaProducer();
+(async () => {
+  await runKafkaProducer();
+})();
 
 //Middlewares
 app.use(express.json());

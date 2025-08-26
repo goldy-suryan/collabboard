@@ -4,7 +4,7 @@ const axios = require('axios');
 router.post('/', async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    const createdUser = await axios.post('http://localhost:3002/user', {
+    const createdUser = await axios.post('http://user-service:3002/user', {
       name,
       email,
       password,
