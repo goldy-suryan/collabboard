@@ -14,9 +14,19 @@ router.post('/', async (req, res, next) => {
         { user: foundUser.data.data },
         process.env.jwtSecretKey,
         {
-          expiresIn: '2h',
+          expiresIn: '15m',
         }
       );
+      const refreshToken = jwt.sign(
+        { user: foundUser.data.data },
+        process.env.jwtRefreshTokenKey,
+        { expiresIn: '7d' }
+      );
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        // secure: true, // for production
+        sameSite: 'strict'
+      });
       return res.status(200).json({
         data: foundUser.data.data,
         token,

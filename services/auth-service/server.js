@@ -5,6 +5,7 @@ const { notFound, unknownError } = require('./middlewares/errorMiddleware');
 const loginRoute = require('./routes/login-route');
 const registerRoute = require('./routes/register-route');
 const authenticatedRoute = require('./routes/authenticated-route');
+const refreshTokenRoute = require('./routes/refreshToken-route');
 dotenv.config();
 
 const port = process.env.port;
@@ -17,6 +18,7 @@ app.use(express.json());
 app.use('/login', loginRoute);
 app.use('/register', registerRoute);
 app.use('/isAuthenticated', authenticatedRoute);
+app.use('/refreshToken', refreshTokenRoute);
 
 app.use(notFound);
 app.use(unknownError);
